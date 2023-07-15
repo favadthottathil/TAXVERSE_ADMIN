@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:provider/provider.dart';
+import 'package:taxverse_admin/controller/providers/addnews_provider.dart';
 import 'package:taxverse_admin/controller/providers/applicatincheck_provider.dart';
 import 'package:taxverse_admin/controller/providers/auth_provider.dart';
 import 'package:taxverse_admin/controller/providers/chatRoom_provider.dart';
@@ -38,11 +39,14 @@ class MyApp extends StatelessWidget {
           create: (context) => AuthProvider(FirebaseAuth.instance),
         ),
         StreamProvider(create: (context) => context.watch<AuthProvider>().stream(), initialData: null),
-        ChangeNotifierProvider<AppliacationCheckProvider>(
-          create: (context) => AppliacationCheckProvider(),
+        ChangeNotifierProvider(
+          create: (_) => AppliacationCheckProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => ChatRoomProvider(),
+          create: (_) => ChatRoomProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AddNewsProvider(),
         )
       ],
       child: MaterialApp(

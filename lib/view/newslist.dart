@@ -11,7 +11,13 @@ import 'package:taxverse_admin/view/news_add.dart';
 class NewsListTile extends StatelessWidget {
   NewsListTile({super.key});
 
-  final newsDetails = FirebaseFirestore.instance.collection('news').snapshots();
+  final newsDetails = FirebaseFirestore.instance
+      .collection('news')
+      .orderBy(
+        'time',
+        descending: true,
+      )
+      .snapshots();
 
   @override
   Widget build(BuildContext context) {

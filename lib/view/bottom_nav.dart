@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:taxverse_admin/Api/api.dart';
@@ -19,8 +18,8 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
   int index = 0;
 
   final screen = [
-    const HomeAdmin(),
-     NewsListTile(),
+    HomeAdmin(),
+    NewsListTile(),
     ChatList(),
   ];
 

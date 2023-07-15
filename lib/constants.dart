@@ -42,6 +42,11 @@ class AppStyle {
     color: blackColor,
     fontWeight: FontWeight.w700,
   );
+  static TextStyle poppinsBoldWhite16 = GoogleFonts.poppins(
+    fontSize: 16,
+    color: whiteColor,
+    fontWeight: FontWeight.w700,
+  );
   static TextStyle poppinsBoldRed16 = GoogleFonts.poppins(
     fontSize: 16,
     color: Colors.red,
@@ -60,6 +65,11 @@ class AppStyle {
   static TextStyle poppinsBold12 = GoogleFonts.poppins(
     fontSize: 12,
     color: blackColor,
+    fontWeight: FontWeight.w700,
+  );
+   static TextStyle poppinsBoldGreen12 = GoogleFonts.poppins(
+    fontSize: 12,
+    color: Colors.green,
     fontWeight: FontWeight.w700,
   );
   static TextStyle poppinsRegular16 = GoogleFonts.poppins(

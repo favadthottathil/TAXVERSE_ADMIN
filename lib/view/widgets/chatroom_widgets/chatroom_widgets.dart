@@ -144,7 +144,7 @@ class MessageCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        padding: const EdgeInsets.all(10),
                         margin: const EdgeInsets.only(right: 10, top: 20, left: 40),
                         decoration: BoxDecoration(
                           // color: Colors.blue.shade100,

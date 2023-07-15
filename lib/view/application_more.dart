@@ -6,9 +6,21 @@ import 'package:taxverse_admin/view/applcation_check.dart';
 class ApplicationMore extends StatelessWidget {
   ApplicationMore({super.key});
 
-  final clientdataCollection = FirebaseFirestore.instance.collection('ClientGstInfo').snapshots();
+  final clientdataCollection = FirebaseFirestore.instance
+      .collection('ClientGstInfo')
+      .orderBy(
+        'time',
+        descending: false,
+      )
+      .snapshots();
 
-  final userData = FirebaseFirestore.instance.collection('ClientDetails').snapshots();
+  final userData = FirebaseFirestore.instance
+      .collection('ClientDetails')
+      .orderBy(
+        'time',
+        descending: false,
+      )
+      .snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +43,15 @@ class ApplicationMore extends StatelessWidget {
                       stream: userData,
                       builder: (context, snapshot2) {
                         if (snapshot2.connectionState == ConnectionState.active) {
-                          var gstData = snapshot1.data!.docs;
+                          var gstData = snapshot1.data?.docs ?? [];
 
-                          var userData = snapshot2.data!.docs;
+                          var userData = snapshot2.data?.docs ?? [];
 
                           return ListView.builder(
                             shrinkWrap: true,
                             primary: false,
                             itemCount: gstData.length,
                             itemBuilder: (context, index) {
-                              final reversedGstdata = gstData.reversed.toList();
-                              final reversedUserData = userData.reversed.toList();
-
                               return Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: GestureDetector(
@@ -51,8 +60,8 @@ class ApplicationMore extends StatelessWidget {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => VerifyApplication(
-                                          gstdata: reversedGstdata[index],
-                                          userData: reversedUserData[index],
+                                          gstdata: gstData[index],
+                                          userData: userData[index],
                                         ),
                                       ),
                                     );
@@ -93,7 +102,7 @@ class ApplicationMore extends StatelessWidget {
                                                           style: AppStyle.poppinsRegular16,
                                                         ),
                                                         TextSpan(
-                                                          text: reversedUserData[index]['Name'],
+                                                          text: userData[index]['Name'],
                                                           style: AppStyle.poppinsBold16,
                                                         )
                                                       ],
@@ -114,7 +123,7 @@ class ApplicationMore extends StatelessWidget {
                                                           style: AppStyle.poppinsRegular16,
                                                         ),
                                                         TextSpan(
-                                                          text: reversedGstdata[index]['ServiceName'],
+                                                          text: gstData[index]['ServiceName'],
                                                           style: AppStyle.poppinsBold16,
                                                         )
                                                       ],
@@ -135,7 +144,7 @@ class ApplicationMore extends StatelessWidget {
                                                           style: AppStyle.poppinsRegular16,
                                                         ),
                                                         TextSpan(
-                                                          text: 'not accepted',
+                                                          text: userData[index]['Isverified'] == 'verified' ? 'Accepted' : 'Not Accepted',
                                                           style: AppStyle.poppinsBold16,
                                                         )
                                                       ],

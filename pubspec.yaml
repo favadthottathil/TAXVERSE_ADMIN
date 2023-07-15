@@ -36,6 +36,7 @@ dependencies:
   easy_pdf_viewer: null
   email_validator: null
   emoji_picker_flutter: null
+  file_picker:
   firebase_auth: null
   firebase_core: null
   firebase_messaging: null
@@ -45,6 +46,7 @@ dependencies:
   flutter_local_notifications: null
   flutter_notification_channel: null
   flutter_spinkit: null
+  flutter_swipe_button: ^2.1.1+1
   google_fonts: null
   http: null
   image_picker: null
@@ -52,7 +54,7 @@ dependencies:
   pinput: null
   provider: null
   rive: ^0.9.1
-
+  roundcheckbox: ^2.0.5
 
 dev_dependencies:
   flutter_lints: ^2.0.0

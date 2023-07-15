@@ -107,8 +107,10 @@ class ChatCard extends StatelessWidget {
 
                             final String lastMessageText = lastMessage?.data()['text'] ?? '';
 
+                            final String lastMessageImage = lastMessage?.data()['image'] ?? '';
+
                             return Text(
-                              lastMessageText,
+                              lastMessageText.isNotEmpty && lastMessageImage.isEmpty ? lastMessageText : 'image',
                               style: AppStyle.poppinsRegular12,
                             );
                           } else {

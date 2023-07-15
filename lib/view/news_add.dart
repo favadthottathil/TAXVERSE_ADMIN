@@ -1,12 +1,16 @@
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:taxverse_admin/constants.dart';
+import 'package:taxverse_admin/controller/providers/addnews_provider.dart';
+
+import 'widgets/AddNewsWidgets/addnews_widgets.dart';
 
 class NewsAdd extends StatefulWidget {
   const NewsAdd({super.key});
@@ -16,10 +20,6 @@ class NewsAdd extends StatefulWidget {
 }
 
 class _NewsAddState extends State<NewsAdd> {
-  XFile? selectedImage;
-
-  String imageurl = '';
-
   final CollectionReference newsCollection = FirebaseFirestore.instance.collection('news');
 
   final autherName = TextEditingController();
@@ -28,25 +28,15 @@ class _NewsAddState extends State<NewsAdd> {
 
   final description = TextEditingController();
 
-  void createNotification(String title, String message) {
-    FirebaseFirestore.instance.collection('notification').add({
-      'title': title,
-      'message': message,
-      'time': FieldValue.serverTimestamp(),
-    });
-  }
-
-  addNewsToDatabase(
-    String autherName,
-    String newsHeading,
-    String description,
-  ) async {
+  addNewsToDatabase(String autherName, String newsHeading, String description, String imageurl) async {
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
     try {
-      final DocumentReference doc = await newsCollection.add({
+      await newsCollection.add({
         'auther': autherName,
         'newsHeading': newsHeading,
         'description': description,
         'image': imageurl,
+        'time': time,
       });
     } catch (e) {
       log('$e');
@@ -65,152 +55,103 @@ class _NewsAddState extends State<NewsAdd> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(15),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add News',
-                  style: AppStyle.poppinsBold24,
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: autherName,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Auther Name',
-                    hintStyle: AppStyle.poppinsRegular16,
-                    labelText: 'Auther Name',
-                    labelStyle: AppStyle.poppinsRegular16,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor, width: 2),
-                    ),
+        body: Consumer<AddNewsProvider>(builder: (
+          context,
+          provider,
+          child,
+        ) {
+          return Padding(
+            padding: const EdgeInsets.all(15),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Add News',
+                    style: AppStyle.poppinsBold24,
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: heading,
-                  decoration: InputDecoration(
-                    hintText: 'Enter News Headline',
-                    hintStyle: AppStyle.poppinsRegular16,
-                    labelText: 'Headline',
-                    labelStyle: AppStyle.poppinsRegular16,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor, width: 2),
-                    ),
+                  const SizedBox(height: 10),
+                  autherNameTextfield(autherName),
+                  const SizedBox(height: 10),
+                  headLineTextfield(heading),
+                  const SizedBox(height: 10),
+                  Text(
+                    'upload news picture',
+                    style: AppStyle.poppinsRegular15,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'upload news picture',
-                  style: AppStyle.poppinsRegular15,
-                ),
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () async {
-                    User? user = FirebaseAuth.instance.currentUser;
-
-                    log('jdlfka');
-
-                    if (user != null) {
-                      print('favad');
-                      String uid = user.uid;
-
-                      ImagePicker imagePicker = ImagePicker();
-
-                      XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
-
-                      if (file == null) return;
-
-                      setState(() {
-                        selectedImage = file;
-                      });
-
-                      Reference reference = FirebaseStorage.instance.ref();
-                      Reference referenceDirImage = reference.child('news');
-                      Reference referenceImageToUpload = referenceDirImage.child(uid);
-
-                      try {
-                        await referenceImageToUpload.putFile(File(file.path));
-                        imageurl = await referenceImageToUpload.getDownloadURL();
-                      } catch (e) {
-                        log('$e');
-                      }
-                    }
-                    log('message');
-                  },
-                  icon: const Icon(Icons.upload),
-                  label: const Text('upload'),
-                ),
-                const SizedBox(height: 10),
-                selectedImage != null
-                    ? Image.file(
-                        File(selectedImage!.path),
-                      )
-                    : const SizedBox(),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: description,
-                  maxLines: 10,
-                  decoration: InputDecoration(
-                    labelText: 'Descrption',
-                    labelStyle: AppStyle.poppinsRegular16,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: blackColor, width: 2),
-                    ),
+                  const SizedBox(height: 10),
+                  TextButton.icon(
+                    onPressed: () {
+                      provider.addNewsPicture();
+                    },
+                    icon: const Icon(Icons.upload),
+                    label: const Text('upload'),
                   ),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    addNewsToDatabase(
-                      autherName.text.trim(),
-                      heading.text.trim(),
-                      description.text.trim(),
-                    );
-                    Navigator.pop(context);
-                  },
-                  child: Center(
-                    child: Container(
-                      height: 50,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: blackColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Add News',
-                          style: AppStyle.poppinsBoldWhite20,
+                  const SizedBox(height: 10),
+                  provider.selectedImage != null
+                      ? Image.file(
+                          File(provider.selectedImage!.path),
+                        )
+                      : const SizedBox(),
+                  const SizedBox(height: 20),
+                  descriptionTextfield(description),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      AwesomeDialog(
+                        context: context,
+                        dialogType: DialogType.info,
+                        animType: AnimType.scale,
+                        showCloseIcon: true,
+                        desc: 'Do You want to Add news??',
+                        btnOkColor: Colors.green,
+                        btnOkText: 'Yes',
+                        btnCancelText: 'Cancel',
+                        btnCancelOnPress: () {},
+                        btnCancelColor: Colors.red,
+                        buttonsTextStyle: AppStyle.poppinsBold16,
+                        dismissOnBackKeyPress: true,
+                        titleTextStyle: AppStyle.poppinsBoldGreen16,
+                        descTextStyle: AppStyle.poppinsBold16,
+                        transitionAnimationDuration: const Duration(milliseconds: 500),
+                        btnOkOnPress: () {
+                          addNewsToDatabase(
+                            autherName.text.trim(),
+                            heading.text.trim(),
+                            description.text.trim(),
+                            provider.imageurl,
+                          );
+
+                          provider.selectedImage = null;
+
+                          Navigator.pop(context);
+                        },
+                        buttonsBorderRadius: BorderRadius.circular(20),
+                      ).show();
+                    },
+                    child: Center(
+                      child: Container(
+                        height: 50,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: blackColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Add News',
+                            style: AppStyle.poppinsBoldWhite20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }

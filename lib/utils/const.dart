@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 bool checkImage({required var message}) {
@@ -8,9 +9,10 @@ bool checkImage({required var message}) {
   }
 }
 
-
 var sizedBoxHeight10 = const SizedBox(height: 10);
 
 var sizedBoxHeight20 = const SizedBox(height: 20);
 
 var sizedBoxHeight40 = const SizedBox(height: 40);
+
+List<QueryDocumentSnapshot<Map<String, dynamic>>> appoinmentGlobal = [];

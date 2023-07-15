@@ -11,12 +11,26 @@ class APIs {
 
   static String documentId = '';
 
-  static Future getDocumetID() async  {
-   await firestore.collection('admins').get().then((snapshot) {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> clientdataCollection = FirebaseFirestore.instance
+      .collection('ClientGstInfo')
+      .orderBy(
+        'time',
+        descending: false,
+      )
+      .snapshots();
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserData(String userID) {
+    return FirebaseFirestore.instance
+        .collection('ClientDetails')
+        .where('Email', isEqualTo: userID)
+        .snapshots();
+  }
+
+  static Future getDocumetID() async {
+    await firestore.collection('admins').get().then((snapshot) {
       for (var doc in snapshot.docs) {
         documentId = doc.id;
         log(' 666666=== $documentId');
-        
       }
     });
   }
@@ -40,5 +54,9 @@ class APIs {
     if (!checkImage(message: message)) {
       await firebaseStorage.refFromURL(docId).delete();
     }
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getGstClientInformation(String userEmail) {
+    return firestore.collection('ClientGstInfo').where('Email', isEqualTo: userEmail).limit(1).snapshots();
   }
 }

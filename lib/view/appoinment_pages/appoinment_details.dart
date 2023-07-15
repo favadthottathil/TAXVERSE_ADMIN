@@ -18,13 +18,13 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   String? clientName;
 
   Future<String?> getClientInformation() async {
-    String clientId = widget.appoinmentData['clientId'];
+    String clientId = widget.appoinmentData['id'];
     CollectionReference referenceUser = FirebaseFirestore.instance.collection('ClientDetails');
 
-    DocumentSnapshot snapshot = await referenceUser.doc(clientId).get();
+    QuerySnapshot<Object?> snapshot = await referenceUser.where('Email', isEqualTo: clientId).get();
 
-    if (snapshot.exists) {
-      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    if (snapshot.docs.isNotEmpty) {
+      Map<String, dynamic> data = snapshot.docs.first.data() as Map<String, dynamic>;
 
       return data['Name'];
     } else {
@@ -52,17 +52,17 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   void initState() {
     super.initState();
 
-    getClientInformation().then((value) {
-      setState(() {
-        clientName = value;
-      });
-    });
+    // getClientInformation().then((value) {
+    //   setState(() {
+    //     clientName = value;
+    //   });
+    // });
 
-    getGstInformation().then((value) {
-      setState(() {
-        serviceName = value;
-      });
-    });
+    // getGstInformation().then((value) {
+    //   setState(() {
+    //     serviceName = value;
+    //   });
+    // });
   }
 
   @override
