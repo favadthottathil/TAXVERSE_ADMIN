@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +24,13 @@ class VerifyApplication extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     // clientName = userData['Name'];
+    var applicationChechProvider = context.watch<AppliacationCheckProvider>();
     final aadhaarpdf = gstdata['AADHAARCARD'];
     final buildingTaxPdf = gstdata['BUILDING TAX RECEIPT'];
     final electricitybillPdf = gstdata['Electricity bill'];
     final panCardPdf = gstdata['PANCARD'];
     final rentAgreementPdf = gstdata['RENT AGREEMENT'];
+    final showAcceptAndRejectbutton = gstdata['acceptbutton'];
     Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs.add(aadhaarpdf);
     Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs.add(buildingTaxPdf);
     Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs.add(electricitybillPdf);
@@ -138,9 +139,20 @@ class VerifyApplication extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    rejectButton(context,userData),
+                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
+                      rejectButton(
+                        context,
+                        userData,
+                        gstdata['Email'],
+                      ),
                     const SizedBox(width: 30),
-                    acceptButton(context,userData)
+                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
+                      acceptButton(
+                        context,
+                        userData,
+                        gstdata['Email'],
+
+                      )
                   ],
                 )
               ],
@@ -153,275 +165,273 @@ class VerifyApplication extends StatelessWidget {
 
   Row electricityBillRow() {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Electricity bill',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['BusinessRegistrationNumber'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Electricity bill',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['BusinessRegistrationNumber'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row aadhaarCardRow() {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'AadhaarNO',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['AadhaarCard'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'AadhaarNO',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['AadhaarCard'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row panCardRow() {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'PanCardNO',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['PanCardNumber'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'PanCardNO',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['PanCardNumber'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row clientPhotoRow(Size size) {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Client Passport size photo',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(
-                      height: size.height * 0.18,
-                      width: size.width * 0.18,
-                      child: CachedNetworkImage(
-                        imageUrl: gstdata['PassportSizePhoto'],
-                        placeholder: (context, url) => const SpinKitThreeBounce(color: blackColor),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Client Passport size photo',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: SizedBox(
+            height: size.height * 0.18,
+            width: size.width * 0.18,
+            child: CachedNetworkImage(
+              imageUrl: gstdata['PassportSizePhoto'],
+              placeholder: (context, url) => const SpinKitThreeBounce(color: blackColor),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Row businessStartDateRow() {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Business StartDate',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['BusinessStartDate'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Business StartDate',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['BusinessStartDate'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row businessTypeRow() {
     return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Business Type',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['BusinesssType'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Business Type',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['BusinesssType'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row companyNameRow() {
     return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Company Name',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['BusinessName'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Company Name',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['BusinessName'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Row fullNameRow() {
     return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Full Name',
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsRegular15,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      ':',
-                      style: AppStyle.poppinsBold16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      gstdata['name'],
-                      textAlign: TextAlign.left,
-                      style: AppStyle.poppinsBold16,
-                    ),
-                  ),
-                ],
-              );
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            'Full Name',
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsRegular15,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            ':',
+            style: AppStyle.poppinsBold16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            gstdata['name'],
+            textAlign: TextAlign.left,
+            style: AppStyle.poppinsBold16,
+          ),
+        ),
+      ],
+    );
   }
 
   Text clientDetailsText() {
     return Text(
-                "Client Details",
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.left,
-                style: AppStyle.poppinsBold16,
-              );
+      "Client Details",
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.left,
+      style: AppStyle.poppinsBold16,
+    );
   }
 
   Text serviceName() {
     return Text(
-                'Service: ${gstdata['ServiceName']}',
-                textAlign: TextAlign.left,
-                style: AppStyle.poppinsBold16,
-              );
+      'Service: ${gstdata['ServiceName']}',
+      textAlign: TextAlign.left,
+      style: AppStyle.poppinsBold16,
+    );
   }
 
   Text verificationApplicationText() {
     return Text(
-                'Verify Application',
-                textAlign: TextAlign.left,
-                style: AppStyle.poppinsBold27,
-              );
+      'Verify Application',
+      textAlign: TextAlign.left,
+      style: AppStyle.poppinsBold27,
+    );
   }
-
-
 }

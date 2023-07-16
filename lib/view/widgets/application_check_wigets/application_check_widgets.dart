@@ -527,58 +527,62 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   }
 }
 
-Expanded rejectButton(BuildContext context, var userData) {
+Expanded rejectButton(BuildContext context, var userData, String email) {
   return Expanded(
-    child: InkWell(
-      onTap: () {
-        AwesomeDialog(
-          context: context,
-          dialogType: DialogType.warning,
-          animType: AnimType.scale,
-          showCloseIcon: true,
-          title: 'Reject Application',
-          desc: 'Do You want to Reject Application',
-          btnOkColor: Colors.green,
-          btnOkText: 'Yes',
-          btnCancelText: 'Cancel',
-          btnCancelOnPress: () {},
-          btnCancelColor: Colors.red,
-          buttonsTextStyle: AppStyle.poppinsBold16,
-          dismissOnBackKeyPress: true,
-          titleTextStyle: AppStyle.poppinsBoldRed16,
-          descTextStyle: AppStyle.poppinsBold16,
-          transitionAnimationDuration: const Duration(milliseconds: 500),
-          btnOkOnPress: () {
-            MessagingAPI.sendPushNotification(
-              userData['message_token'],
-              'your Application Denied',
-              'Denied',
-            );
-            Diologes.showSnackbar(context, 'Application Denied');
-            Provider.of<AppliacationCheckProvider>(context, listen: false).notifyNotVerified(userData['Email']);
-          },
-          buttonsBorderRadius: BorderRadius.circular(20),
-        ).show();
-      },
-      child: Container(
-        height: 53,
-        width: 100,
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            'REJECT',
-            style: AppStyle.poppinsBold16,
+    child: Consumer<AppliacationCheckProvider>(builder: (context, value, child) {
+      return InkWell(
+        onTap: () {
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.warning,
+            animType: AnimType.scale,
+            showCloseIcon: true,
+            title: 'Reject Application',
+            desc: 'Do You want to Reject Application',
+            btnOkColor: Colors.green,
+            btnOkText: 'Yes',
+            btnCancelText: 'Cancel',
+            btnCancelOnPress: () {},
+            btnCancelColor: Colors.red,
+            buttonsTextStyle: AppStyle.poppinsBold16,
+            dismissOnBackKeyPress: true,
+            titleTextStyle: AppStyle.poppinsBoldRed16,
+            descTextStyle: AppStyle.poppinsBold16,
+            transitionAnimationDuration: const Duration(milliseconds: 500),
+            btnOkOnPress: () {
+              MessagingAPI.sendPushNotification(
+                userData['message_token'],
+                'your Application Denied',
+                'Denied',
+              );
+              Diologes.showSnackbar(context, 'Application Denied');
+              Provider.of<AppliacationCheckProvider>(context, listen: false).notifyNotVerified(userData['Email']);
+              value.verificationStatusToTrue();
+              setAcceptAcceptButtonTrue(email);
+            },
+            buttonsBorderRadius: BorderRadius.circular(20),
+          ).show();
+        },
+        child: Container(
+          height: 53,
+          width: 100,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Text(
+              'REJECT',
+              style: AppStyle.poppinsBold16,
+            ),
           ),
         ),
-      ),
-    ),
+      );
+    }),
   );
 }
 
-Expanded acceptButton(BuildContext context, var userData) {
+Expanded acceptButton(BuildContext context, var userData, String email) {
   return Expanded(
     child: Consumer<AppliacationCheckProvider>(builder: (context, value, child) {
       return InkWell(
@@ -613,6 +617,7 @@ Expanded acceptButton(BuildContext context, var userData) {
               );
 
               value.verificationStatusToTrue();
+              setAcceptAcceptButtonTrue(email);
             },
             buttonsBorderRadius: BorderRadius.circular(20),
           ).show();
@@ -634,4 +639,27 @@ Expanded acceptButton(BuildContext context, var userData) {
       );
     }),
   );
+}
+
+setAcceptAcceptButtonTrue(String emal) async {
+  try {
+    log('username $emal');
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('ClientGstInfo')
+        .where(
+          'Email',
+          isEqualTo: emal,
+        )
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      await querySnapshot.docs.first.reference.update({
+        'acceptbutton': true,
+      });
+
+      log('profile updated');
+    }
+  } catch (e) {
+    log('error $e');
+  }
 }
