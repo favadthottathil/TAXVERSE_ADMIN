@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +24,16 @@ class _SignInState extends State<SignIn> {
 
   bool isSigned = false;
 
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void dispose() {
     emailController.dispose();
     passController.dispose();
     super.dispose();
   }
+
+  // Validate Email
 
   String? validateEmail(String? email) {
     if (email == null || email.isEmpty) {
@@ -42,139 +45,113 @@ class _SignInState extends State<SignIn> {
     return null;
   }
 
-  void signIn(AuthProvider provider) async {
+  // Firebase SignIn
+
+  void signIn(AuthProviderr provider) async {
     final msg = await provider.signIn(emailController.text, passController.text);
 
     emailController.clear();
     passController.clear();
 
-    log('6');
-
     if (msg == '') return;
 
-    log('login success');
-
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(scaffoldKey.currentContext!).hideCurrentSnackBar();
+    ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(
       SnackBar(
         content: Text(msg),
       ),
     );
-    // showSnackBar(context, msg);
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: context.watch<AuthProvider>().stream(),
+      stream: context.watch<AuthProviderr>().stream(),
       builder: (context, snapshot) {
         if (snapshot.hasData) return const BottomNav();
 
-        return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            final mediaQuery = MediaQuery.of(context);
-            final authprovider = context.watch<AuthProvider>();
+        final mediaQuery = MediaQuery.of(context);
+        final authprovider = context.watch<AuthProviderr>();
 
-            return Scaffold(
-              body: SafeArea(
-                child: Form(
-                  key: formkey,
-                  child: Stack(
+        return Scaffold(
+          body: SafeArea(
+            child: Form(
+              key: formkey,
+              child: Stack(
+                children: [
+                  ListView(
                     children: [
-                      ListView(
-                        children: [
-                          SizedBox(height: mediaQuery.size.height * 0.03),
-                          SizedBox(
-                            width: double.infinity,
-                            height: mediaQuery.size.height * 0.15,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(7),
-                              child: Image.asset(
-                                'Asset/TAXVERSE LOGO-1.png',
-                              ),
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              // const SizedBox(height: 20),
-                              Text(
-                                'Admin Login',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.5,
-                                  // color: blackColor,
-                                ),
-                              ),
-                              SizedBox(height: mediaQuery.size.height * 0.03),
-                              SizedBox(
-                                width: mediaQuery.size.width * 0.57,
-                                height: mediaQuery.size.height * 0.22,
-                                child: Image.asset(
-                                  'Asset/sign_in.png',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(height: mediaQuery.size.height * 0.03),
-                              emaiTextField(),
-                              Container(
-                                height: mediaQuery.size.height * 0.03,
-                              ),
-                              passwordTextField(),
-                              Container(
-                                height: mediaQuery.size.height * 0.02,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => const ResetPassword(),
-                                  //   ),
-                                  // );
-                                },
-                                child: Text(
-                                  'Forgot Password',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.5,
-                                    color: const Color(0xff000000),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: mediaQuery.size.height * 0.03,
-                              ),
-                              signInButton(authprovider, mediaQuery),
-                              SizedBox(
-                                height: mediaQuery.size.height * 0.01,
-                              ),
-                              gotoSignUp(context),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (authprovider.loading)
-                        const Center(
-                          child: FrostedGlass(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: Center(
-                              child: SpinKitCircle(
-                                color: blackColor,
-                              ),
-                            ),
+                      SizedBox(height: mediaQuery.size.height * 0.03),
+                      SizedBox(
+                        width: double.infinity,
+                        height: mediaQuery.size.height * 0.15,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(7),
+                          child: Image.asset(
+                            'Asset/TAXVERSE LOGO-1.png',
                           ),
                         ),
+                      ),
+                      Column(
+                        children: [
+                          // const SizedBox(height: 20),
+                          Text(
+                            'Admin Login',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              height: 1.5,
+                              // color: blackColor,
+                            ),
+                          ),
+                          SizedBox(height: mediaQuery.size.height * 0.03),
+                          SizedBox(
+                            width: mediaQuery.size.width * 0.64,
+                            height: mediaQuery.size.height * 0.22,
+                            child: Image.asset(
+                              'Asset/sign_in.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          SizedBox(height: mediaQuery.size.height * 0.03),
+                          emaiTextField(),
+                          Container(
+                            height: mediaQuery.size.height * 0.03,
+                          ),
+                          passwordTextField(),
+                          Container(
+                            height: mediaQuery.size.height * 0.02,
+                          ),
+
+                          SizedBox(
+                            height: mediaQuery.size.height * 0.03,
+                          ),
+                          signInButton(authprovider, mediaQuery),
+                          SizedBox(
+                            height: mediaQuery.size.height * 0.01,
+                          ),
+                          gotoSignUp(context),
+                        ],
+                      ),
                     ],
                   ),
-                ),
+                  if (authprovider.loading)
+                    const Center(
+                      child: FrostedGlass(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: Center(
+                          child: SpinKitCircle(
+                            color: blackColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
@@ -218,7 +195,7 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  InkWell signInButton(AuthProvider authprovider, MediaQueryData mediaQuery) {
+  InkWell signInButton(AuthProviderr authprovider, MediaQueryData mediaQuery) {
     return InkWell(
       onTap: () {
         signIn(authprovider);

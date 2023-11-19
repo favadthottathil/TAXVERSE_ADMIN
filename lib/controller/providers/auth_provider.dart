@@ -2,16 +2,14 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taxverse_admin/view/sign_in.dart';
-// import 'package:taxverse/view/otp_screen.dart';
-// import 'package:taxverse/utils/utils.dart';
-// import 'package:taxverse/view/sign_option.dart';
 
-class AuthProvider extends ChangeNotifier {
+
+class AuthProviderr extends ChangeNotifier {
   final FirebaseAuth _fb;
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
-  AuthProvider(this._fb);
+  AuthProviderr(this._fb);
 
   bool _isLoading = false;
 

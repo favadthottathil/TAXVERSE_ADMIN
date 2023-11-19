@@ -8,6 +8,7 @@ import 'package:taxverse_admin/controller/providers/auth_provider.dart';
 import 'package:taxverse_admin/view/application_more.dart';
 import 'package:taxverse_admin/view/widgets/appointment_request_home.dart';
 
+// ignore: must_be_immutable
 class HomeAdmin extends StatelessWidget {
   HomeAdmin({super.key});
 
@@ -69,7 +70,7 @@ class HomeAdmin extends StatelessWidget {
                                         descTextStyle: AppStyle.poppinsBold16,
                                         transitionAnimationDuration: const Duration(milliseconds: 500),
                                         btnOkOnPress: () {
-                                          context.read<AuthProvider>().logOut(context);
+                                          context.read<AuthProviderr>().logOut(context);
                                         },
                                         buttonsBorderRadius: BorderRadius.circular(20),
                                       ).show();

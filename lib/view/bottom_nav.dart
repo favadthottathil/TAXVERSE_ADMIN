@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:taxverse_admin/Api/api.dart';
+import 'package:taxverse_admin/Api/client_details.dart';
+import 'package:taxverse_admin/Api/client_gst_details.dart';
 import 'package:taxverse_admin/constants.dart';
 import 'package:taxverse_admin/view/admin_home.dart';
 import 'package:taxverse_admin/view/chat/chat.dart';
@@ -19,13 +21,19 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
 
   final screen = [
     HomeAdmin(),
-    NewsListTile(),
+    // NewsListTile(),
     ChatList(),
   ];
+
+  favad() async {
+    await getClientDetails();
+  }
 
   @override
   void initState() {
     super.initState();
+
+    // favad();
 
     APIs.getDocumetID().then((value) {
       WidgetsBinding.instance.addObserver(this);
@@ -59,9 +67,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           animationCurve: Curves.linear,
           height: 60,
           backgroundColor: Colors.white,
-
           index: index,
-          // buttonBackgroundColor: Colors.black,
           onTap: (index) {
             setState(() {
               this.index = index;
@@ -78,11 +84,11 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
               size: 35,
               color: Colors.white,
             ),
-            Icon(
-              Icons.newspaper_outlined,
-              size: 35,
-              color: Colors.white,
-            ),
+            // Icon(
+            //   Icons.newspaper_outlined,
+            //   size: 35,
+            //   color: Colors.white,
+            // ),
           ],
         ),
       ),

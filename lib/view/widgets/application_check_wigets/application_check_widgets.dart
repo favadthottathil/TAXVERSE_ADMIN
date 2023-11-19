@@ -1,9 +1,12 @@
+import 'dart:collection';
 import 'dart:developer';
+import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:taxverse_admin/Api/api.dart';
@@ -443,7 +446,9 @@ class ApplicationCheckWidgets {
 
   // ----------------------------------------------------------------------------
 
-  static GridView pdfView(BuildContext context) {
+  static GridView pdfView(BuildContext context, List<File> paths) {
+    final pdfPaths = paths.sublist(1);
+
     return GridView.builder(
       shrinkWrap: true,
       primary: false,
@@ -455,14 +460,17 @@ class ApplicationCheckWidgets {
       ),
       itemCount: 5,
       itemBuilder: (_, index) {
+        var path = pdfPaths[index];
+
         return InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PdfViewerScreen(pdfUrl: Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs[index]),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => PdfViewerScreen(pdfUrl: Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs[index]),
+            //   ),
+            // );
+            OpenFile.open(path.path);
           },
           child: Column(
             children: [

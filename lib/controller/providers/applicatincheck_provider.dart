@@ -74,11 +74,13 @@ class AppliacationCheckProvider extends ChangeNotifier {
         )
         .get();
     if (querySnapshot1.docs.isNotEmpty) {
-      await querySnapshot1.docs.first.reference.update({
-        // 'Isverified': 'verified',
-        'application_status': 'true',
-        'showprogress': true,
-      });
+      await querySnapshot1.docs.first.reference.update(
+        {
+          // 'Isverified': 'verified',
+          'application_status': 'true',
+          'showprogress': true,
+        },
+      );
     }
   }
 

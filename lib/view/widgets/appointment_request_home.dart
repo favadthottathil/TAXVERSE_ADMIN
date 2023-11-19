@@ -5,6 +5,7 @@ import 'package:taxverse_admin/constants.dart';
 import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/view/applcation_check.dart';
 import 'package:taxverse_admin/view/appoinment_pages/appoinment_details.dart';
+import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 
 class AppoinmentRequestHome extends StatelessWidget {
   const AppoinmentRequestHome({
@@ -103,132 +104,134 @@ class AppoinmentRequestHome extends StatelessWidget {
 }
 
 ListView applicationList(List<QueryDocumentSnapshot<Map<String, dynamic>>> gstData) {
+  for (var document in gstData) {
+    document.data()['time'] = decrypedData(document.data()['time'], generateKey());
+  }
+
+  gstData.sort((a, b) => a.data()['time'].compareTo(b.data()['time']));
+
   return ListView.builder(
     shrinkWrap: true,
     primary: false,
     itemCount: gstData.length > 3 ? 3 : gstData.length,
     itemBuilder: (context, index) {
 
-
-
-
       return StreamBuilder(
-        stream: APIs.getUserData(gstData[index]['Email']),
-        builder: (context, snapshot) {
-          var userData = snapshot.data?.docs ?? [];
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VerifyApplication(
-                      gstdata: gstData[index],
-                      userData: userData[0],
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: blackColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(45),
-                        child: Image.asset(
-                          'Asset/3135715.png',
-                          height: 90,
-                          width: 90,
-                        ),
+          stream: APIs.getUserData(decrypedData(gstData[index]['Email'], generateKey())),
+          builder: (context, snapshot) {
+            var userData = snapshot.data?.docs ?? [];
+            return Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VerifyApplication(
+                        gstdata: gstData[index],
+                        userData: userData[0],
                       ),
-                      const SizedBox(width: 25),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Name: ',
-                                      style: AppStyle.poppinsRegular16,
-                                    ),
-                                    TextSpan(
-                                      text: gstData[index]['name'],
-                                      style: AppStyle.poppinsBold16,
-                                    )
-                                  ],
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: blackColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(45),
+                          child: Image.asset(
+                            'Asset/3135715.png',
+                            height: 90,
+                            width: 90,
                           ),
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Service: ',
-                                      style: AppStyle.poppinsRegular16,
-                                    ),
-                                    TextSpan(
-                                      text: gstData[index]['ServiceName'],
-                                      style: AppStyle.poppinsBold16,
-                                    )
-                                  ],
+                        ),
+                        const SizedBox(width: 25),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Name: ',
+                                        style: AppStyle.poppinsRegular16,
+                                      ),
+                                      TextSpan(
+                                        text: decrypedData(gstData[index]['name'], generateKey()),
+                                        style: AppStyle.poppinsBold16,
+                                      )
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Status: ',
-                                      style: AppStyle.poppinsRegular16,
-                                    ),
-                                    TextSpan(
-                                      text:
-                                      //  userData[index]['Isverified'] == 'verified' ? 'Accepted' : 
-                                      'Not Accepted',
-                                      style: AppStyle.poppinsBold16,
-                                    )
-                                  ],
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Service: ',
+                                        style: AppStyle.poppinsRegular16,
+                                      ),
+                                      TextSpan(
+                                        text: gstData[index]['ServiceName'],
+                                        style: AppStyle.poppinsBold16,
+                                      )
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-                    ],
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Status: ',
+                                        style: AppStyle.poppinsRegular16,
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            //  userData[index]['Isverified'] == 'verified' ? 'Accepted' :
+                                            'Not Accepted',
+                                        style: AppStyle.poppinsBold16,
+                                      )
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }
-      );
+            );
+          });
     },
   );
 }

@@ -36,7 +36,8 @@ dependencies:
   easy_pdf_viewer: null
   email_validator: null
   emoji_picker_flutter: null
-  file_picker:
+  encrypt: null
+  file_picker: null
   firebase_auth: null
   firebase_core: null
   firebase_messaging: null
@@ -51,6 +52,9 @@ dependencies:
   http: null
   image_picker: null
   intl: null
+  open_file: ^3.3.2
+  path_provider: ^2.1.1
+  pdf:
   pinput: null
   provider: null
   rive: ^0.9.1
