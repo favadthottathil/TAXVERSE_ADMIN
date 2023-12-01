@@ -15,54 +15,31 @@ import 'package:taxverse_admin/constants.dart';
 import 'package:taxverse_admin/controller/providers/applicatincheck_provider.dart';
 import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/utils/diologes.dart';
+import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 
 class ApplicationCheckWidgets {
-  static Future<dynamic> customDialog(
-    BuildContext context,
-    Size size,
-    String userEmail,
-    TextEditingController percentageController,
-    TextEditingController gstNumberController,
-  ) async {
+  static Future<QuerySnapshot<Object?>> accessGstDatabase(String userEmail, int count) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('GstClientInfo')
+        .where(
+          'Email',
+          isEqualTo: userEmail,
+        )
+        .where('Application_count', isEqualTo: count)
+        .get();
+
+    return querySnapshot;
+  }
+
+  static Future<dynamic> customDialog(BuildContext context, Size size, String userEmail, TextEditingController percentageController, TextEditingController gstNumberController, int count) async {
     return await showDialog(
       context: context,
       builder: (context) {
         final formKey = GlobalKey<FormState>();
 
-        // RegistrationCompleted() async {
-        //   try {
-        //     log('username $userEmail');
-        //     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        //         .collection('ClientGstInfo')
-        //         .where(
-        //           'Email',
-        //           isEqualTo: userEmail,
-        //         )
-        //         .get();
-
-        //     if (querySnapshot.docs.isNotEmpty) {
-        //       log('ddddd ${percentageController.text}');
-        //       await querySnapshot.docs.first.reference.update({
-        //         'isRegistrationCompleted': true,
-        //       });
-
-        //       log('profile updated');
-        //     }
-        //   } catch (e) {
-        //     log('error $e');
-        //   }
-        // }
-
         setApplicationVerified(bool value) async {
           try {
-            log('username $userEmail');
-            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                .collection('ClientGstInfo')
-                .where(
-                  'Email',
-                  isEqualTo: userEmail,
-                )
-                .get();
+            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
 
             if (querySnapshot.docs.isNotEmpty) {
               log('ddddd ${percentageController.text}');
@@ -79,14 +56,7 @@ class ApplicationCheckWidgets {
 
         isFinalCheckToDatbase() async {
           try {
-            log('username $userEmail');
-            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                .collection('ClientGstInfo')
-                .where(
-                  'Email',
-                  isEqualTo: userEmail,
-                )
-                .get();
+            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
 
             if (querySnapshot.docs.isNotEmpty) {
               log('ddddd ${percentageController.text}');
@@ -104,14 +74,7 @@ class ApplicationCheckWidgets {
 
         isCheckDocumentsToDatbase() async {
           try {
-            log('username $userEmail');
-            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                .collection('ClientGstInfo')
-                .where(
-                  'Email',
-                  isEqualTo: userEmail,
-                )
-                .get();
+            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
 
             if (querySnapshot.docs.isNotEmpty) {
               log('ddddd ${percentageController.text}');
@@ -128,14 +91,7 @@ class ApplicationCheckWidgets {
 
         isCheckInformationToDatbase() async {
           try {
-            log('username $userEmail');
-            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                .collection('ClientGstInfo')
-                .where(
-                  'Email',
-                  isEqualTo: userEmail,
-                )
-                .get();
+            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
 
             if (querySnapshot.docs.isNotEmpty) {
               log('ddddd ${percentageController.text}');
@@ -152,14 +108,7 @@ class ApplicationCheckWidgets {
 
         updateStatus(int num) async {
           try {
-            log('username $userEmail');
-            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                .collection('ClientGstInfo')
-                .where(
-                  'Email',
-                  isEqualTo: userEmail,
-                )
-                .get();
+            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
 
             if (querySnapshot.docs.isNotEmpty) {
               await querySnapshot.docs.first.reference.update({
@@ -205,7 +154,7 @@ class ApplicationCheckWidgets {
 
         return AlertDialog(
           content: StreamBuilder(
-              stream: APIs.getGstClientInformation(userEmail),
+              stream: APIs.getGstClientInformation(userEmail,count),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final data = snapshot.data?.docs ?? [];
@@ -446,9 +395,7 @@ class ApplicationCheckWidgets {
 
   // ----------------------------------------------------------------------------
 
-  static GridView pdfView(BuildContext context, List<File> paths) {
-    final pdfPaths = paths.sublist(1);
-
+  static GridView pdfView(BuildContext context, HashMap<String, File> documentFiles) {
     return GridView.builder(
       shrinkWrap: true,
       primary: false,
@@ -460,17 +407,13 @@ class ApplicationCheckWidgets {
       ),
       itemCount: 5,
       itemBuilder: (_, index) {
-        var path = pdfPaths[index];
+        final String name = Provider.of<AppliacationCheckProvider>(context, listen: false).pdfsNames[index];
+
+        final file = documentFiles[name]!;
 
         return InkWell(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => PdfViewerScreen(pdfUrl: Provider.of<AppliacationCheckProvider>(context, listen: false).pdfs[index]),
-            //   ),
-            // );
-            OpenFile.open(path.path);
+            OpenFile.open(file.path);
           },
           child: Column(
             children: [

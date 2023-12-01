@@ -7,7 +7,7 @@ import 'package:taxverse_admin/Api/client_gst_details.dart';
 import 'package:taxverse_admin/constants.dart';
 import 'package:taxverse_admin/view/admin_home.dart';
 import 'package:taxverse_admin/view/chat/chat.dart';
-import 'package:taxverse_admin/view/newslist.dart';
+
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});

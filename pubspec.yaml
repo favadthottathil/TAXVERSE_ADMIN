@@ -61,9 +61,14 @@ dependencies:
   roundcheckbox: ^2.0.5
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "Asset/play_store_512.png"    
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -80,6 +85,7 @@ flutter:
     - Asset/sign_in.png
     - Asset/TAXVERSE LOGO-1.png
     - Asset/pngwing.com.png
+    - Asset/play_store_512.png
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -32,11 +32,11 @@ Future<File> createPathForDecrypted(List<int> decryptedBytes, String mail, int c
 
   // Create a new File object to represent the PDF file
 
-  if (fileName == "'s PassportSizePhoto") {
-    final name = '$fileName.jpeg';
+  if (fileName.contains('PassportSizePhoto')) {
+    const name = 'PassportSizePhoto.jpeg';
     file = File('${taxverseDirectory.path}/$name');
   } else {
-    final name = '$fileName.pdf';
+    final name = '${fileName.replaceAll("'s", '').trim()}.pdf';
     file = File('${taxverseDirectory.path}/$name');
   }
 

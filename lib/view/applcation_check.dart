@@ -12,13 +12,18 @@ import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 import 'widgets/application_check_wigets/application_check_widgets.dart';
 
-class VerifyApplication extends StatelessWidget {
-  VerifyApplication({super.key, required this.gstdata, required this.userData});
+class VerifyApplication extends StatefulWidget {
+  const VerifyApplication({super.key, required this.gstdata, required this.userData});
 
   final DocumentSnapshot gstdata;
 
   final DocumentSnapshot userData;
 
+  @override
+  State<VerifyApplication> createState() => _VerifyApplicationState();
+}
+
+class _VerifyApplicationState extends State<VerifyApplication> {
   final percentageController = TextEditingController();
 
   final gstNumberController = TextEditingController();
@@ -34,158 +39,153 @@ class VerifyApplication extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: whiteColor,
-        body: SingleChildScrollView(
-          child: Container(
-            width: double.maxFinite,
-            padding: EdgeInsets.only(
-              left: size.width * 0.03,
-              top: size.height * 0.03,
-              right: size.width * 0.05,
-              bottom: size.height * 0.03,
-            ),
-            child: FutureBuilder(
-              future: APIs.getFileFromFirebaseStorage(decrypedData(gstdata['Email'], generateKey()), gstdata['Application_count'].toString()),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<String> documentNames = snapshot.data!.items.map((e) => e.name).toList();
-                  final showAcceptAndRejectbutton = gstdata['acceptbutton'];
-                  return FutureBuilder<List<String>>(
-                      future: downloadAndDecryptFiles(documentNames, documentFiles),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          if (snapshot.data!.length == 6) {
-                            log('all data exists');
-                          }
-
-                          final allValues = documentFiles.values.toList();
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              verificationApplicationText(),
-                              SizedBox(height: size.height * 0.01, width: size.width * 0.2),
-                              serviceName(),
-                              SizedBox(height: size.height * 0.01, width: size.width * 0.2),
-                              clientDetailsText(),
-                              sizedBoxHeight20,
-                              fullNameRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: 30,
-                              ),
-                              sizedBoxHeight20,
-                              companyNameRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              businessTypeRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              businessStartDateRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              clientPhotoRow(size, allValues),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              panCardRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              aadhaarCardRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              sizedBoxHeight20,
-                              electricityBillRow(),
-                              Divider(
-                                color: blackColor.withOpacity(0.1),
-                                thickness: 1,
-                                height: size.height * 0.04,
-                              ),
-                              Text('Client Documents', style: AppStyle.poppinsBold16),
-                              sizedBoxHeight20,
-                              ApplicationCheckWidgets.pdfView(context, allValues),
-                              Align(
-                                alignment: Alignment.center,
-                                child: MaterialButton(
-                                  onPressed: () {
-                                    ApplicationCheckWidgets.customDialog(
-                                      context,
-                                      size,
-                                      decrypedData(gstdata['Email'], generateKey()),
-                                      percentageController,
-                                      gstNumberController,
-                                    );
-                                  },
-                                  child: Text(
-                                    'Update Status To Client',
-                                    style: AppStyle.poppinsBold16,
+        body: SizedBox(
+          height: size.height,
+          width: size.width,
+          child: FutureBuilder(
+            future: APIs.getFileFromFirebaseStorage(decrypedData(widget.gstdata['Email'], generateKey()), widget.gstdata['Application_count'].toString()),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<String> documentNames = snapshot.data!.items.map((e) => e.name).toList();
+                final showAcceptAndRejectbutton = widget.gstdata['acceptbutton'];
+                return FutureBuilder(
+                    future: downloadAndDecryptFiles(documentNames),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: size.width * 0.03,
+                              top: size.height * 0.03,
+                              right: size.width * 0.05,
+                              bottom: size.height * 0.03,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                verificationApplicationText(),
+                                SizedBox(height: size.height * 0.01, width: size.width * 0.2),
+                                serviceName(),
+                                SizedBox(height: size.height * 0.01, width: size.width * 0.2),
+                                clientDetailsText(),
+                                sizedBoxHeight20,
+                                fullNameRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: 30,
+                                ),
+                                sizedBoxHeight20,
+                                companyNameRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                businessTypeRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                businessStartDateRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                clientPhotoRow(size, documentFiles),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                panCardRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                aadhaarCardRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                sizedBoxHeight20,
+                                electricityBillRow(),
+                                Divider(
+                                  color: blackColor.withOpacity(0.1),
+                                  thickness: 1,
+                                  height: size.height * 0.04,
+                                ),
+                                Text('Client Documents', style: AppStyle.poppinsBold16),
+                                sizedBoxHeight20,
+                                ApplicationCheckWidgets.pdfView(context, documentFiles),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      ApplicationCheckWidgets.customDialog(
+                                        context,
+                                        size,
+                                        // decrypedData(widget.gstdata['Email'], generateKey()),
+                                        widget.gstdata['Email'],
+                                        percentageController,
+                                        gstNumberController,
+                                        widget.gstdata['Application_count'],
+                                      );
+                                    },
+                                    child: Text(
+                                      'Update Status To Client',
+                                      style: AppStyle.poppinsBold16,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: size.height * 0.02),
-                              // if (Provider.of<AppliacationCheckProvider>(context, listen: false).verificatinStatus == false)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
-                                    rejectButton(
-                                      context,
-                                      userData,
-                                      decrypedData(gstdata['Email'], generateKey()),
-                                    ),
-                                  const SizedBox(width: 30),
-                                  if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
-                                    acceptButton(
-                                      context,
-                                      userData,
-                                      decrypedData(gstdata['Email'], generateKey()),
-                                    )
-                                ],
-                              )
-                            ],
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(child: Text(snapshot.error.toString()));
-                        } else {
-                          return const Center(
-                            child: SpinKitCircle(
-                              color: blackColor,
+                                SizedBox(height: size.height * 0.02),
+                                // if (Provider.of<AppliacationCheckProvider>(context, listen: false).verificatinStatus == false)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
+                                      rejectButton(
+                                        context,
+                                        widget.userData,
+                                        decrypedData(widget.gstdata['Email'], generateKey()),
+                                      ),
+                                    const SizedBox(width: 30),
+                                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
+                                      acceptButton(
+                                        context,
+                                        widget.userData,
+                                        decrypedData(widget.gstdata['Email'], generateKey()),
+                                      )
+                                  ],
+                                )
+                              ],
                             ),
-                          );
-                        }
-                      });
-                } else if (snapshot.hasError) {
-                  log(snapshot.error.toString());
-                } else if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: SpinKitCircle(color: blackColor));
-                }
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text(snapshot.error.toString()));
+                      } else {
+                        return Center(child: Text('Downloading documents.....', style: AppStyle.poppinsBold16));
+                      }
+                    });
+              } else if (snapshot.hasError) {
+                log(snapshot.error.toString());
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: SpinKitCircle(color: blackColor));
+              }
 
-                return const Center(child: Text('No Data Found'));
-              },
-            ),
+              return const Center(child: Text('No Data Found'));
+            },
           ),
         ),
       ),
@@ -193,7 +193,7 @@ class VerifyApplication extends StatelessWidget {
   }
 
   getdatafromStorage() async {
-    var data = await APIs.getFileFromFirebaseStorage(decrypedData(gstdata['Email'], generateKey()), gstdata['Application_count'].toString());
+    var data = await APIs.getFileFromFirebaseStorage(decrypedData(widget.gstdata['Email'], generateKey()), widget.gstdata['Application_count'].toString());
 
     return data;
   }
@@ -219,7 +219,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['electricityBill'], generateKey()),
+            decrypedData(widget.gstdata['electricityBill'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -249,7 +249,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['AadhaarCard'], generateKey()),
+            decrypedData(widget.gstdata['AadhaarCard'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -279,7 +279,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['PanCardNumber'], generateKey()),
+            decrypedData(widget.gstdata['PanCardNumber'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -288,7 +288,9 @@ class VerifyApplication extends StatelessWidget {
     );
   }
 
-  Row clientPhotoRow(Size size, List<File> allValues) {
+  Row clientPhotoRow(Size size, HashMap<String, File> documentsFiles) {
+    final profilePath = documentFiles['PassportSizePhoto']!;
+
     return Row(
       children: [
         Expanded(
@@ -311,7 +313,7 @@ class VerifyApplication extends StatelessWidget {
           child: SizedBox(
             height: size.height * 0.18,
             width: size.width * 0.18,
-            child: Image.file(allValues[0]),
+            child: Image.file(profilePath),
           ),
         ),
       ],
@@ -339,7 +341,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['BusinessStartDate'], generateKey()),
+            decrypedData(widget.gstdata['BusinessStartDate'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -369,7 +371,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['BusinesssType'], generateKey()),
+            decrypedData(widget.gstdata['BusinesssType'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -400,7 +402,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['BusinessName'], generateKey()),
+            decrypedData(widget.gstdata['BusinessName'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -431,7 +433,7 @@ class VerifyApplication extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            decrypedData(gstdata['name'], generateKey()),
+            decrypedData(widget.gstdata['name'], generateKey()),
             textAlign: TextAlign.left,
             style: AppStyle.poppinsBold16,
           ),
@@ -451,7 +453,7 @@ class VerifyApplication extends StatelessWidget {
 
   Text serviceName() {
     return Text(
-      'Service: ${gstdata['ServiceName']}',
+      'Service: ${widget.gstdata['ServiceName']}',
       textAlign: TextAlign.left,
       style: AppStyle.poppinsBold16,
     );
@@ -466,16 +468,15 @@ class VerifyApplication extends StatelessWidget {
   }
 
   // Download and decrypt each file
-
-  Future<List<String>> downloadAndDecryptFiles(List<String> documentNames, HashMap<String, File> documentFiles) async {
-    List<String> decryptedFilePaths = [];
+  Future<List<dynamic>> downloadAndDecryptFiles(List<String> documentNames) async {
+    List visited = [];
 
     for (String fileName in documentNames) {
-      await APIs.downloadEncryptedPdfFile(decrypedData(gstdata['Email'], generateKey()), gstdata['Application_count'], fileName, documentFiles);
-
-      // decryptedFilePaths.add(decryptFilePath);
+      await APIs.downloadEncryptedPdfFile(decrypedData(widget.gstdata['Email'], generateKey()), widget.gstdata['Application_count'], fileName, documentFiles);
     }
 
-    return decryptedFilePaths;
+    print('full success');
+
+    return visited;
   }
 }

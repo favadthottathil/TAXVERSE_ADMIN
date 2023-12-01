@@ -107,7 +107,7 @@ class _SignInState extends State<SignIn> {
                           ),
                           SizedBox(height: mediaQuery.size.height * 0.03),
                           SizedBox(
-                            width: mediaQuery.size.width * 0.64,
+                           
                             height: mediaQuery.size.height * 0.22,
                             child: Image.asset(
                               'Asset/sign_in.png',

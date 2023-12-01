@@ -22,7 +22,7 @@ class AppliacationCheckProvider extends ChangeNotifier {
   bool registrationCompletedLocal = false;
 
   List pdfsNames = [
-    'AadhaarCard',
+    'AADHAARCARD',
     'BUILDING TAX RECEIPT',
     'Electricity bill',
     'PANCARD',

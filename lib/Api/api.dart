@@ -50,8 +50,19 @@ class APIs {
     }
   }
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getGstClientInformation(String userEmail) {
-    return firestore.collection('ClientGstInfo').where('Email', isEqualTo: userEmail).limit(1).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getGstClientInformation(String userEmail, int count) {
+    return firestore
+        .collection('GstClientInfo')
+        .where(
+          'Email',
+          isEqualTo: userEmail,
+        )
+        .where(
+          'Application_count',
+          isEqualTo: count,
+        )
+        .limit(1)
+        .snapshots();
   }
 
   static Future<ListResult> getFileFromFirebaseStorage(String email, String count) {
@@ -73,8 +84,6 @@ class APIs {
         )
         .child('GstApplication$count/')
         .child(fileName);
-
-    print(fileName);
 
     // Download the encrypted data from Firebase Storage
 
@@ -101,8 +110,7 @@ class APIs {
 
       log(file.path);
 
-      documentFiles[fileName] = file;
-
+      documentFiles[fileName.replaceAll("'s", '').trim()] = file;
     }
   }
 }

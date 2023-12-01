@@ -7,7 +7,7 @@ class ApplicationMore extends StatelessWidget {
   ApplicationMore({super.key});
 
   final clientdataCollection = FirebaseFirestore.instance
-      .collection('ClientGstInfo')
+      .collection('GstClientInfo')
       .orderBy(
         'time',
         descending: false,
@@ -15,10 +15,11 @@ class ApplicationMore extends StatelessWidget {
       .snapshots();
 
   final userData = FirebaseFirestore.instance
-      .collection('ClientDetails')
+      .collection(
+        'ClientDetails',
+      )
       .orderBy(
         'time',
-        descending: false,
       )
       .snapshots();
 
