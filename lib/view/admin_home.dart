@@ -135,7 +135,7 @@ class HomeAdmin extends StatelessWidget {
                               style: AppStyle.poppinsBold16,
                             ),
                             const SizedBox(height: 20),
-                            const AppoinmentRequestHome(),
+                            const   AppoinmentRequestHome(),
                           ],
                         ),
                       ),

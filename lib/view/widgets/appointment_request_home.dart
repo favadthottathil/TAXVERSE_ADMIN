@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:taxverse_admin/Api/api.dart';
 import 'package:taxverse_admin/constants.dart';
 import 'package:taxverse_admin/utils/const.dart';
-import 'package:taxverse_admin/view/applcation_check.dart';
+import 'package:taxverse_admin/view/Application_Check/applcation_check.dart';
 import 'package:taxverse_admin/view/appoinment_pages/appoinment_details.dart';
 import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 
@@ -104,22 +104,16 @@ class AppoinmentRequestHome extends StatelessWidget {
 }
 
 ListView applicationList(List<QueryDocumentSnapshot<Map<String, dynamic>>> gstData) {
-  for (var document in gstData) {
-    document.data()['time'] = decrypedData(document.data()['time'], generateKey());
-  }
-
-  gstData.sort((a, b) => a.data()['time'].compareTo(b.data()['time']));
-
   return ListView.builder(
     shrinkWrap: true,
     primary: false,
     itemCount: gstData.length > 3 ? 3 : gstData.length,
     itemBuilder: (context, index) {
-
       return StreamBuilder(
           stream: APIs.getUserData(decrypedData(gstData[index]['Email'], generateKey())),
           builder: (context, snapshot) {
             var userData = snapshot.data?.docs ?? [];
+            final applicationStatus = gstData[index]['application_status'];
             return Padding(
               padding: const EdgeInsets.only(top: 10),
               child: GestureDetector(
@@ -214,7 +208,11 @@ ListView applicationList(List<QueryDocumentSnapshot<Map<String, dynamic>>> gstDa
                                       TextSpan(
                                         text:
                                             //  userData[index]['Isverified'] == 'verified' ? 'Accepted' :
-                                            'Not Accepted',
+                                            applicationStatus == 'accepted'
+                                                ? 'Accepted'
+                                                : applicationStatus == 'notAccepted'
+                                                    ? 'Rejected'
+                                                    : 'Not Accepted',
                                         style: AppStyle.poppinsBold16,
                                       )
                                     ],

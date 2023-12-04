@@ -22,10 +22,14 @@ encrypt.Key generateKey() {
   return key;
 }
 
-List<int> decryptBytes(Uint8List encryptedBytes) {
-  final key = generateKey();
-  final encrypter = encrypt.Encrypter(encrypt.AES(key));
-  final staticIV = encrypt.IV.fromUtf8('taxverse');
-  final decryptedBytes = encrypter.decryptBytes(encrypt.Encrypted(encryptedBytes), iv: staticIV);
-  return decryptedBytes;
+List<int> decryptByte(Uint8List encryptedBytes) {
+  if (encryptedBytes.isNotEmpty) {
+    final key = generateKey();
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+    final staticIV = encrypt.IV.fromUtf8('taxverse');
+    final decryptedBytes = encrypter.decryptBytes(encrypt.Encrypted(encryptedBytes), iv: staticIV);
+    return decryptedBytes;
+  } else {
+    return [];
+  }
 }

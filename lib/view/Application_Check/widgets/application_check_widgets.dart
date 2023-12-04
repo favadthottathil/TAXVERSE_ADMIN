@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:open_file/open_file.dart';
@@ -12,149 +11,22 @@ import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:taxverse_admin/Api/api.dart';
 import 'package:taxverse_admin/Api/messaging_api.dart';
 import 'package:taxverse_admin/constants.dart';
-import 'package:taxverse_admin/controller/providers/applicatincheck_provider.dart';
+import 'package:taxverse_admin/view/Application_Check/provider/applicatincheck_provider.dart';
 import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/utils/diologes.dart';
-import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 
 class ApplicationCheckWidgets {
-  static Future<QuerySnapshot<Object?>> accessGstDatabase(String userEmail, int count) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('GstClientInfo')
-        .where(
-          'Email',
-          isEqualTo: userEmail,
-        )
-        .where('Application_count', isEqualTo: count)
-        .get();
-
-    return querySnapshot;
-  }
-
-  static Future<dynamic> customDialog(BuildContext context, Size size, String userEmail, TextEditingController percentageController, TextEditingController gstNumberController, int count) async {
+  static Future customDialog(BuildContext context, Size size, String userEmail, TextEditingController percentageController, TextEditingController gstNumberController, int count) async {
     return await showDialog(
       context: context,
       builder: (context) {
         final formKey = GlobalKey<FormState>();
 
-        setApplicationVerified(bool value) async {
-          try {
-            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
-
-            if (querySnapshot.docs.isNotEmpty) {
-              log('ddddd ${percentageController.text}');
-              await querySnapshot.docs.first.reference.update({
-                'application_verified': value,
-              });
-
-              log('profile updated');
-            }
-          } catch (e) {
-            log('error $e');
-          }
-        }
-
-        isFinalCheckToDatbase() async {
-          try {
-            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
-
-            if (querySnapshot.docs.isNotEmpty) {
-              log('ddddd ${percentageController.text}');
-              await querySnapshot.docs.first.reference.update({
-                'verifystatus': 2,
-                // 'showprogress':true,
-              });
-
-              log('profile updated');
-            }
-          } catch (e) {
-            log('error $e');
-          }
-        }
-
-        isCheckDocumentsToDatbase() async {
-          try {
-            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
-
-            if (querySnapshot.docs.isNotEmpty) {
-              log('ddddd ${percentageController.text}');
-              await querySnapshot.docs.first.reference.update({
-                'verifystatus': 1,
-              });
-
-              log('profile updated');
-            }
-          } catch (e) {
-            log('error $e');
-          }
-        }
-
-        isCheckInformationToDatbase() async {
-          try {
-            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
-
-            if (querySnapshot.docs.isNotEmpty) {
-              log('ddddd ${percentageController.text}');
-              await querySnapshot.docs.first.reference.update({
-                'verifystatus': 0,
-              });
-
-              log('profile updated');
-            }
-          } catch (e) {
-            log('error $e');
-          }
-        }
-
-        updateStatus(int num) async {
-          try {
-            final QuerySnapshot<Object?> querySnapshot = await accessGstDatabase(userEmail, count);
-
-            if (querySnapshot.docs.isNotEmpty) {
-              await querySnapshot.docs.first.reference.update({
-                'statuspercentage': num,
-              });
-
-              log('profile updated');
-            }
-          } catch (e) {
-            log('error $e');
-          }
-        }
-
-        checkValidate(String email, String gstNumber) {
-          if (formKey.currentState!.validate()) {
-            // Provider.of<AppliacationCheckProvider>(context, listen: false).setRegistrationCompletedLocalFalse();
-
-            AwesomeDialog(
-              context: context,
-              dialogType: DialogType.warning,
-              animType: AnimType.scale,
-              showCloseIcon: true,
-              title: 'Submit Information',
-              desc: 'Do You want to Submit GST Information',
-              btnOkColor: Colors.green,
-              btnOkText: 'Yes',
-              btnCancelText: 'Cancel',
-              btnCancelOnPress: () {},
-              btnCancelColor: Colors.red,
-              buttonsTextStyle: AppStyle.poppinsBold16,
-              dismissOnBackKeyPress: true,
-              titleTextStyle: AppStyle.poppinsBoldGreen16,
-              descTextStyle: AppStyle.poppinsBold16,
-              transitionAnimationDuration: const Duration(milliseconds: 500),
-              btnOkOnPress: () {
-                Provider.of<AppliacationCheckProvider>(context, listen: false).gstNumberUpload(email, gstNumber);
-                Navigator.pop(context);
-              },
-              buttonsBorderRadius: BorderRadius.circular(20),
-            ).show();
-          }
-        }
+        final appliCheckProvider = context.watch<AppliacationCheckProvider>();
 
         return AlertDialog(
           content: StreamBuilder(
-              stream: APIs.getGstClientInformation(userEmail,count),
+              stream: APIs.getGstClientInformation(userEmail, count),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final data = snapshot.data?.docs ?? [];
@@ -163,8 +35,7 @@ class ApplicationCheckWidgets {
 
                   return SizedBox(
                     height: size.height * 0.47,
-                    // width: double.infinity,
-                    child: applicationVerified == false
+                    child: (!applicationVerified)
                         ? Consumer<AppliacationCheckProvider>(builder: (context, provider, child) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +52,9 @@ class ApplicationCheckWidgets {
                                   ),
                                   trailing: RoundCheckBox(
                                     onTap: (selected) {
-                                      provider.isCheckInformation = selected!;
+                                      // provider.isCheckInformation = selected!;
+                                      provider.setIsCheckInformation(userEmail, count, selected!);
+                                      provider.getIsCheckInformation(userEmail, count);
                                     },
                                     uncheckedColor: Colors.red,
                                     borderColor: blackColor,
@@ -199,7 +72,9 @@ class ApplicationCheckWidgets {
                                   ),
                                   trailing: RoundCheckBox(
                                     onTap: (selected) {
-                                      provider.isCheckDocuments = selected!;
+                                      // provider.isCheckDocuments = selected!;
+                                      provider.setIsCheckDocuments(userEmail, count, selected!);
+                                      provider.getIsCheckDocuments(userEmail, count);
                                     },
                                     uncheckedColor: Colors.red,
                                     borderColor: blackColor,
@@ -217,7 +92,9 @@ class ApplicationCheckWidgets {
                                   ),
                                   trailing: RoundCheckBox(
                                     onTap: (selected) {
-                                      provider.isFinalCheck = selected!;
+                                      // provider.isFinalCheck = selected!;
+                                      provider.setIsFinalCheck(userEmail, count, selected!);
+                                      provider.getIsFinalCheck(userEmail, count);
                                     },
                                     uncheckedColor: Colors.red,
                                     borderColor: blackColor,
@@ -228,59 +105,52 @@ class ApplicationCheckWidgets {
                                     ),
                                   ),
                                 ),
-                                // SizedBox(height: size.height * 0.03),
                                 Center(
-                                  child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: blackColor,
+                                    child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: blackColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.warning,
+                                      animType: AnimType.scale,
+                                      btnCancelColor: whiteColor,
+                                      btnCancelOnPress: () {},
+                                      btnOkColor: whiteColor,
+                                      btnOkOnPress: () {
+                                        if (provider.isCheckInformation ?? false) {
+                                          provider.updateStatus(40, userEmail, count);
+                                          provider.isCheckInformationToDatbase(userEmail, count);
+                                        }
 
-                                        // fixedSize: const Size(300, 100),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        AwesomeDialog(
-                                          context: context,
-                                          dialogType: DialogType.warning,
-                                          animType: AnimType.scale,
-                                          btnCancelColor: whiteColor,
-                                          btnCancelOnPress: () {},
-                                          btnOkColor: whiteColor,
-                                          btnOkOnPress: () {
-                                            if (provider.isCheckInformation == true) {
-                                              updateStatus(40);
-                                              isCheckInformationToDatbase();
-                                            }
+                                        if (provider.isCheckDocuments ?? false) {
+                                          provider.updateStatus(70, userEmail, count);
+                                          provider.isCheckDocumentsToDatbase(userEmail, count);
+                                        }
 
-                                            if (provider.isCheckDocuments == true) {
-                                              updateStatus(70);
-                                              isCheckDocumentsToDatbase();
-                                            }
+                                        if (provider.isFinalCheck ?? false) {
+                                          provider.updateStatus(100, userEmail, count);
+                                          provider.isFinalCheckToDatbase(userEmail, count);
+                                        }
 
-                                            if (provider.isFinalCheck == true) {
-                                              updateStatus(100);
-                                              isFinalCheckToDatbase();
-                                              setApplicationVerified(true);
-                                              // RegistrationCompleted();
-
-                                              // Provider.of<AppliacationCheckProvider>(context, listen: false).setRegistrationCompletedLocalTrue();
-                                            }
-
-                                            Navigator.pop(context);
-                                          },
-                                          desc: 'Save Changes',
-                                          descTextStyle: AppStyle.poppinsBold16,
-                                          buttonsTextStyle: AppStyle.poppinsBold12,
-                                          dismissOnBackKeyPress: true,
-                                          useRootNavigator: true,
-                                        ).show();
+                                        Navigator.pop(context);
                                       },
-                                      child: Text(
-                                        'Save Changes',
-                                        style: AppStyle.poppinsBoldWhite16,
-                                      )),
-                                ),
+                                      desc: 'Save Changes',
+                                      descTextStyle: AppStyle.poppinsBold16,
+                                      buttonsTextStyle: AppStyle.poppinsBold12,
+                                      dismissOnBackKeyPress: true,
+                                      useRootNavigator: true,
+                                    ).show();
+                                  },
+                                  child: Text(
+                                    'Save Changes',
+                                    style: AppStyle.poppinsBoldWhite16,
+                                  ),
+                                )),
                                 // SizedBox(height: size.height * 0.02),
                                 Center(
                                   child: TextButton(
@@ -327,45 +197,49 @@ class ApplicationCheckWidgets {
                                 ),
                               ),
                               SizedBox(height: size.height * 0.03),
-                              Consumer<AppliacationCheckProvider>(builder: (context, provider, child) {
-                                return MaterialButton(
-                                  onPressed: () {
-                                    provider.pickFile(
-                                      userEmail,
-                                      gstNumberController.text.trim(),
-                                    );
-                                  },
-                                  child: Text(
-                                    'Upload Gst Certificate',
-                                    style: AppStyle.poppinsBold12,
-                                  ),
+                              Consumer<AppliacationCheckProvider>(builder: (context, provider, _) {
+                                return Column(
+                                  children: [
+                                    MaterialButton(
+                                      onPressed: () {
+                                        provider.pickFile(userEmail, count);
+                                      },
+                                      child: Text(
+                                        'Upload Gst Certificate',
+                                        style: AppStyle.poppinsBold12,
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: provider.fileUploaded == true,
+                                      child: Text('file Uploaded', style: AppStyle.poppinsBoldGreen12),
+                                    ),
+                                    Visibility(
+                                      visible: provider.fileUploading == true,
+                                      child: Text('file Uploading....', style: AppStyle.poppinsBold12),
+                                    ),
+                                    SizedBox(height: size.height * 0.01),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        appliCheckProvider.checkValidate(
+                                          userEmail,
+                                          gstNumberController.text.trim(),
+                                          formKey,
+                                          context,
+                                          count,
+                                        );
+
+                                        gstNumberController.clear();
+
+                                        provider.setFileUploaded = false;
+                                      },
+                                      child: Text(
+                                        'Submit',
+                                        style: AppStyle.poppinsBold12,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               }),
-                              Consumer<AppliacationCheckProvider>(builder: (context, provider, child) {
-                                return Visibility(
-                                  visible: provider.fileUploading == true,
-                                  child: Text('file Uploading....', style: AppStyle.poppinsBold12),
-                                );
-                              }),
-                              Consumer<AppliacationCheckProvider>(builder: (context, provider, child) {
-                                return Visibility(
-                                  visible: provider.fileUploaded == true,
-                                  child: Text('file Uploaded', style: AppStyle.poppinsBoldGreen12),
-                                );
-                              }),
-                              SizedBox(height: size.height * 0.01),
-                              ElevatedButton(
-                                onPressed: () {
-                                  checkValidate(
-                                    userEmail,
-                                    gstNumberController.text.trim(),
-                                  );
-                                },
-                                child: Text(
-                                  'Submit',
-                                  style: AppStyle.poppinsBold12,
-                                ),
-                              ),
                               SizedBox(height: size.height * 0.02),
                               Center(
                                 child: TextButton(
@@ -440,45 +314,7 @@ class ApplicationCheckWidgets {
   }
 }
 
-class PdfViewerScreen extends StatefulWidget {
-  const PdfViewerScreen({super.key, required this.pdfUrl});
-
-  final String pdfUrl;
-
-  @override
-  State<PdfViewerScreen> createState() => _PdfViewerScreenState();
-}
-
-class _PdfViewerScreenState extends State<PdfViewerScreen> {
-  PDFDocument? document;
-
-  void initilisePdf() async {
-    document = await PDFDocument.fromURL(widget.pdfUrl);
-
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    initilisePdf();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: document != null
-          ? PDFViewer(document: document!)
-          : const Center(
-              child: SpinKitThreeBounce(
-                color: blackColor,
-              ),
-            ),
-    );
-  }
-}
-
-Expanded rejectButton(BuildContext context, var userData, String email) {
+Expanded rejectButton(BuildContext context, var userData, String email, int count) {
   return Expanded(
     child: Consumer<AppliacationCheckProvider>(builder: (context, value, child) {
       return InkWell(
@@ -506,10 +342,11 @@ Expanded rejectButton(BuildContext context, var userData, String email) {
                 'your Application Denied',
                 'Denied',
               );
+
+              value.notifyNotVerified(userData['Email'], count);
+              // value.verificationStatusToTrue;
+              setAcceptAcceptButtonTrue(email, count);
               Diologes.showSnackbar(context, 'Application Denied');
-              Provider.of<AppliacationCheckProvider>(context, listen: false).notifyNotVerified(userData['Email']);
-              value.verificationStatusToTrue();
-              setAcceptAcceptButtonTrue(email);
             },
             buttonsBorderRadius: BorderRadius.circular(20),
           ).show();
@@ -533,7 +370,7 @@ Expanded rejectButton(BuildContext context, var userData, String email) {
   );
 }
 
-Expanded acceptButton(BuildContext context, var userData, String email) {
+Expanded acceptButton(BuildContext context, var userData, String email, int count) {
   return Expanded(
     child: Consumer<AppliacationCheckProvider>(builder: (context, value, child) {
       return InkWell(
@@ -561,14 +398,16 @@ Expanded acceptButton(BuildContext context, var userData, String email) {
                 'your Application Successfully verified',
                 'Application verified',
               );
+
+              value.notifyVerified(userData['Email'], count);
+
+              // value.verificationStatusToTrue;
+
+              setAcceptAcceptButtonTrue(email, count);
+
               Diologes.showSnackbar(context, 'Application Accepted');
 
-              Provider.of<AppliacationCheckProvider>(context, listen: false).notifyVerified(
-                userData['Email'],
-              );
-
-              value.verificationStatusToTrue();
-              setAcceptAcceptButtonTrue(email);
+              // value.verificationStatusToFalse;
             },
             buttonsBorderRadius: BorderRadius.circular(20),
           ).show();
@@ -592,24 +431,13 @@ Expanded acceptButton(BuildContext context, var userData, String email) {
   );
 }
 
-setAcceptAcceptButtonTrue(String emal) async {
+setAcceptAcceptButtonTrue(String email, int count) async {
   try {
-    log('username $emal');
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('ClientGstInfo')
-        .where(
-          'Email',
-          isEqualTo: emal,
-        )
-        .get();
+    final QuerySnapshot<Object?> gstSnapshot = await APIs.accessGstDatabase(email, count);
 
-    if (querySnapshot.docs.isNotEmpty) {
-      await querySnapshot.docs.first.reference.update({
-        'acceptbutton': true,
-      });
-
-      log('profile updated');
-    }
+    await gstSnapshot.docs.first.reference.update({
+      'acceptbutton': true,
+    });
   } catch (e) {
     log('error $e');
   }

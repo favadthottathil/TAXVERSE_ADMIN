@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/utils/create_path_for_ecryptedata.dart';
 import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
+import 'package:taxverse_admin/view/widgets/encrypt_data.dart';
 
 class APIs {
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -14,7 +15,7 @@ class APIs {
 
   static String documentId = '';
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> clientdataCollection = FirebaseFirestore.instance.collection('GstClientInfo').snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> clientdataCollection = FirebaseFirestore.instance.collection('GstClientInfo').orderBy('time',descending: false).snapshots();
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getUserData(String userID) {
     return FirebaseFirestore.instance.collection('ClientDetails').where('Email', isEqualTo: userID).snapshots();
@@ -24,12 +25,11 @@ class APIs {
     await firestore.collection('admins').get().then((snapshot) {
       for (var doc in snapshot.docs) {
         documentId = doc.id;
-        log(' 666666=== $documentId');
       }
     });
   }
 
-  static Future<String?> updateActiveStatus(bool isOnline) async {
+  static Future updateActiveStatus(bool isOnline) async {
     log('hdfhdhahhaja   $documentId');
 
     try {
@@ -102,7 +102,7 @@ class APIs {
 
       final encryptedData = await downloadedFile.readAsBytes();
 
-      final decryptedBytes = decryptBytes(encryptedData);
+      final decryptedBytes = decryptByte(encryptedData);
 
       // convet decrypted bytes to file
 
@@ -112,5 +112,19 @@ class APIs {
 
       documentFiles[fileName.replaceAll("'s", '').trim()] = file;
     }
+  }
+
+  static Future<QuerySnapshot<Object?>> accessGstDatabase(String userEmail, int count) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('GstClientInfo')
+        .where(
+          'Email',
+          // isEqualTo: EncryptData().encryptedData(userEmail, generateKey()),
+          isEqualTo: userEmail,
+        )
+        .where('Application_count', isEqualTo: count)
+        .get();
+
+    return querySnapshot;
   }
 }

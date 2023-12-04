@@ -42,6 +42,7 @@ dependencies:
   firebase_core: null
   firebase_messaging: null
   firebase_storage: null
+  shared_preferences: ^2.2.1
   flutter:
     sdk: flutter
   flutter_local_notifications: null

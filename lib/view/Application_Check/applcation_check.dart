@@ -7,10 +7,11 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:taxverse_admin/Api/api.dart';
 import 'package:taxverse_admin/constants.dart';
-import 'package:taxverse_admin/controller/providers/applicatincheck_provider.dart';
+import 'package:taxverse_admin/controller/shared_pref/application_check.dart';
+import 'package:taxverse_admin/view/Application_Check/provider/applicatincheck_provider.dart';
 import 'package:taxverse_admin/utils/const.dart';
 import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
-import 'widgets/application_check_wigets/application_check_widgets.dart';
+import 'widgets/application_check_widgets.dart';
 
 class VerifyApplication extends StatefulWidget {
   const VerifyApplication({super.key, required this.gstdata, required this.userData});
@@ -34,7 +35,35 @@ class _VerifyApplicationState extends State<VerifyApplication> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    var applicationChechProvider = context.watch<AppliacationCheckProvider>();
+    final provider = Provider.of<AppliacationCheckProvider>(context, listen: false);
+
+    final String gstEmail = widget.gstdata['Email'];
+
+    final int count = widget.gstdata['Application_count'];
+
+    checkSharedPreferenceValue(
+      gstEmail,
+      count,
+      false,
+      ApplicatinCheckShardpref().getIsCheckInformation(gstEmail, count),
+      provider.getIsCheckInformation(gstEmail, count),
+    );
+
+    checkSharedPreferenceValue(
+      gstEmail,
+      count,
+      false,
+      ApplicatinCheckShardpref().getisCheckDocuments(gstEmail, count),
+      provider.getIsCheckDocuments(gstEmail, count),
+    );
+
+    checkSharedPreferenceValue(
+      gstEmail,
+      count,
+      false,
+      ApplicatinCheckShardpref().getIsFinalCheck(gstEmail, count),
+      provider.getIsFinalCheck(gstEmail, count),
+    );
 
     return SafeArea(
       child: Scaffold(
@@ -47,7 +76,8 @@ class _VerifyApplicationState extends State<VerifyApplication> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<String> documentNames = snapshot.data!.items.map((e) => e.name).toList();
-                final showAcceptAndRejectbutton = widget.gstdata['acceptbutton'];
+                // final showAcceptAndRejectbutton = widget.gstdata['acceptbutton'];
+                final showupdateStatusToClient = widget.gstdata['application_status'];
                 return FutureBuilder(
                     future: downloadAndDecryptFiles(documentNames),
                     builder: (context, snapshot) {
@@ -128,46 +158,57 @@ class _VerifyApplicationState extends State<VerifyApplication> {
                                 Text('Client Documents', style: AppStyle.poppinsBold16),
                                 sizedBoxHeight20,
                                 ApplicationCheckWidgets.pdfView(context, documentFiles),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: MaterialButton(
-                                    onPressed: () {
-                                      ApplicationCheckWidgets.customDialog(
-                                        context,
-                                        size,
-                                        // decrypedData(widget.gstdata['Email'], generateKey()),
-                                        widget.gstdata['Email'],
-                                        percentageController,
-                                        gstNumberController,
-                                        widget.gstdata['Application_count'],
-                                      );
-                                    },
-                                    child: Text(
-                                      'Update Status To Client',
-                                      style: AppStyle.poppinsBold16,
+                                if (showupdateStatusToClient == '' || showupdateStatusToClient == 'accepted')
+                                  Align(
+                                    child: MaterialButton(
+                                      onPressed: () {
+                                        ApplicationCheckWidgets.customDialog(
+                                          context,
+                                          size,
+                                          widget.gstdata['Email'],
+                                          percentageController,
+                                          gstNumberController,
+                                          widget.gstdata['Application_count'],
+                                        );
+                                      },
+                                      child: Text(
+                                        'Update Status To Client',
+                                        style: AppStyle.poppinsBold16,
+                                      ),
                                     ),
                                   ),
-                                ),
                                 SizedBox(height: size.height * 0.02),
                                 // if (Provider.of<AppliacationCheckProvider>(context, listen: false).verificatinStatus == false)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
-                                      rejectButton(
-                                        context,
-                                        widget.userData,
-                                        decrypedData(widget.gstdata['Email'], generateKey()),
-                                      ),
-                                    const SizedBox(width: 30),
-                                    if (showAcceptAndRejectbutton == false && applicationChechProvider.verificatinStatus == false)
-                                      acceptButton(
-                                        context,
-                                        widget.userData,
-                                        decrypedData(widget.gstdata['Email'], generateKey()),
-                                      )
-                                  ],
-                                )
+                                StreamBuilder(
+                                    stream: APIs.getGstClientInformation(widget.gstdata['Email'], widget.gstdata['Application_count']),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        final showAcceptAndRejectbutton = snapshot.data!.docs[0]['acceptbutton'] ?? [];
+
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            if (showAcceptAndRejectbutton)
+                                              rejectButton(
+                                                context,
+                                                widget.userData,
+                                                widget.gstdata['Email'],
+                                                widget.gstdata['Application_count'],
+                                              ),
+                                            const SizedBox(width: 30),
+                                            if (showAcceptAndRejectbutton)
+                                              acceptButton(
+                                                context,
+                                                widget.userData,
+                                                widget.gstdata['Email'],
+                                                widget.gstdata['Application_count'],
+                                              )
+                                          ],
+                                        );
+                                      } else {
+                                        return SizedBox();
+                                      }
+                                    })
                               ],
                             ),
                           ),
@@ -190,6 +231,14 @@ class _VerifyApplicationState extends State<VerifyApplication> {
         ),
       ),
     );
+  }
+
+  void checkSharedPreferenceValue(String gstEmail, int count, bool value, Future<bool?> checkFunction, Future<void> setFunction) {
+    checkFunction.then((value) {
+      if (value == null) {
+        setFunction;
+      }
+    });
   }
 
   getdatafromStorage() async {
@@ -471,8 +520,10 @@ class _VerifyApplicationState extends State<VerifyApplication> {
   Future<List<dynamic>> downloadAndDecryptFiles(List<String> documentNames) async {
     List visited = [];
 
+    final String decryptedMail = decrypedData(widget.gstdata['Email'], generateKey());
+
     for (String fileName in documentNames) {
-      await APIs.downloadEncryptedPdfFile(decrypedData(widget.gstdata['Email'], generateKey()), widget.gstdata['Application_count'], fileName, documentFiles);
+      await APIs.downloadEncryptedPdfFile(decryptedMail, widget.gstdata['Application_count'], fileName, documentFiles);
     }
 
     print('full success');

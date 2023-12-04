@@ -7,7 +7,7 @@ import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:provider/provider.dart';
 import 'package:taxverse_admin/controller/providers/addnews_provider.dart';
-import 'package:taxverse_admin/controller/providers/applicatincheck_provider.dart';
+import 'package:taxverse_admin/view/Application_Check/provider/applicatincheck_provider.dart';
 import 'package:taxverse_admin/controller/providers/auth_provider.dart';
 import 'package:taxverse_admin/controller/providers/chatRoom_provider.dart';
 import 'package:taxverse_admin/view/sign_in.dart';

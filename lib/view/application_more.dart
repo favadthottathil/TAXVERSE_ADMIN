@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:taxverse_admin/constants.dart';
-import 'package:taxverse_admin/view/applcation_check.dart';
+import 'package:taxverse_admin/view/Application_Check/applcation_check.dart';
+import 'package:taxverse_admin/view/widgets/decrypt_data.dart';
 
 class ApplicationMore extends StatelessWidget {
   ApplicationMore({super.key});
@@ -18,9 +19,7 @@ class ApplicationMore extends StatelessWidget {
       .collection(
         'ClientDetails',
       )
-      .orderBy(
-        'time',
-      )
+      .orderBy('time', descending: false)
       .snapshots();
 
   @override
@@ -40,12 +39,12 @@ class ApplicationMore extends StatelessWidget {
                 stream: clientdataCollection,
                 builder: (context, snapshot1) {
                   if (snapshot1.connectionState == ConnectionState.active) {
+                    var gstData = snapshot1.data?.docs ?? [];
+
                     return StreamBuilder(
                       stream: userData,
                       builder: (context, snapshot2) {
                         if (snapshot2.connectionState == ConnectionState.active) {
-                          var gstData = snapshot1.data?.docs ?? [];
-
                           var userData = snapshot2.data?.docs ?? [];
 
                           return ListView.builder(
@@ -53,6 +52,8 @@ class ApplicationMore extends StatelessWidget {
                             primary: false,
                             itemCount: gstData.length,
                             itemBuilder: (context, index) {
+                              final applicationStatus = gstData[index]['application_status'];
+
                               return Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: GestureDetector(
@@ -103,7 +104,7 @@ class ApplicationMore extends StatelessWidget {
                                                           style: AppStyle.poppinsRegular16,
                                                         ),
                                                         TextSpan(
-                                                          text: userData[index]['Name'],
+                                                          text: decrypedData(gstData[index]['name'], generateKey()),
                                                           style: AppStyle.poppinsBold16,
                                                         )
                                                       ],
@@ -145,7 +146,11 @@ class ApplicationMore extends StatelessWidget {
                                                           style: AppStyle.poppinsRegular16,
                                                         ),
                                                         TextSpan(
-                                                          text: userData[index]['Isverified'] == 'verified' ? 'Accepted' : 'Not Accepted',
+                                                          text: applicationStatus == 'accepted'
+                                                              ? 'Accepted'
+                                                              : applicationStatus == 'notAccepted'
+                                                                  ? 'Rejected'
+                                                                  : 'Not Accepted',
                                                           style: AppStyle.poppinsBold16,
                                                         )
                                                       ],
